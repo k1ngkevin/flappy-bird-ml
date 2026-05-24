@@ -2,6 +2,8 @@ import pygame
 import random
 
 pygame.init()
+pygame.font.init()
+font = pygame.font.SysFont("Arial", 50)
 width, height = 1280, 720
 
 screen = pygame.display.set_mode((width, height))
@@ -44,10 +46,15 @@ gravity = 0.5
 bird_velocity_y = 0
 jump_force = -8
 
+score = 0
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
 
     screen.fill("#70C5CE")
 
@@ -89,10 +96,20 @@ while running:
     if bird_pos.y > height or bird_pos.y < 0 or is_collision:
         print("game end")
         break
-
+    
     pygame.draw.circle(screen, "yellow", bird_pos, bird_radius)
+
+    for pipe_pair in pipes:
+        if pipe_pair["scored"] == False and bird_pos.x > pipe_pair["top"].x:
+            score += 1
+            pipe_pair["scored"] = True 
+            break
+    
+    score_surface = font.render(f"{score}", False, (255, 255, 255))
+    screen.blit(score_surface, (width / 2, 35))
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
 
+print(f"score: {score}")
 pygame.quit()
