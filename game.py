@@ -1,7 +1,6 @@
 import pygame
 import random
 
-
 pygame.init()
 width, height = 1280, 720
 
@@ -10,6 +9,15 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
+def check_collision(circle_pos, circle_radius, rect):
+    closest_x = max(rect.left, min(circle_pos[0], rect.right))
+    closest_y = max(rect.top, min(circle_pos[1], rect.bottom))
+    closest_point = pygame.math.Vector2(closest_x, closest_y)
+
+    circle_center = pygame.math.Vector2(circle_pos)
+    distance = circle_center.distance_to(closest_point)
+    return distance <= circle_radius
+    
 
 def create_pipe():
     gap_y = random.randint(150, 500)
@@ -25,13 +33,13 @@ def create_pipe():
         "scored": False,
     }
 
-
 pipes = []
 pipe_timer = 0
 pipe_spawn_time = 1.5
 pipe_speed = 300
 
 bird_pos = pygame.math.Vector2(width / 2, height / 2)
+bird_radius = 30
 gravity = 0.5
 bird_velocity_y = 0
 jump_force = -8
@@ -67,8 +75,22 @@ while running:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         bird_velocity_y = jump_force
+    
+    is_collision = False 
 
-    pygame.draw.circle(screen, "yellow", bird_pos, 30)
+    for pipe_pair in pipes:
+        if (
+            check_collision(bird_pos, bird_radius, pipe_pair["top"]) 
+            or check_collision(bird_pos, bird_radius, pipe_pair["bottom"])
+        ):
+            is_collision = True;
+            break;
+
+    if bird_pos.y > height or bird_pos.y < 0 or is_collision:
+        print("game end")
+        break
+
+    pygame.draw.circle(screen, "yellow", bird_pos, bird_radius)
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
