@@ -78,7 +78,7 @@ pipe_spawn_time = 1.5
 pipe_speed = 300
 
 gravity = 0.5
-jump_force = -10
+jump_force = -8
 
 
 def main():
