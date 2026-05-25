@@ -44,7 +44,7 @@ bird_pos = pygame.math.Vector2(width / 2, height / 2)
 bird_radius = 30
 gravity = 0.5
 bird_velocity_y = 0
-jump_force = -8
+jump_force = -10
 
 score = 0
 
@@ -55,6 +55,11 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            elif event.key == pygame.K_SPACE:
+                bird_velocity_y = jump_force
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                bird_velocity_y = jump_force
 
     screen.fill("#70C5CE")
 
@@ -79,10 +84,6 @@ while running:
     bird_pos.y += bird_velocity_y
     bird_velocity_y += gravity
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        bird_velocity_y = jump_force
-    
     is_collision = False 
 
     for pipe_pair in pipes:
