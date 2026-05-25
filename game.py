@@ -72,10 +72,10 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             elif event.key == pygame.K_SPACE:
-                bird.velocity = jump_force
+                bird.jump()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                bird.velocity = jump_force
+                bird.jump()
 
     screen.fill("#70C5CE")
 
@@ -97,8 +97,7 @@ while running:
         pygame.draw.rect(screen, "green", pipe_pair["top"])
         pygame.draw.rect(screen, "green", pipe_pair["bottom"])
 
-    bird.pos.y += bird.velocity
-    bird.velocity += gravity
+    bird.update()
 
     is_collision = False 
 
@@ -114,7 +113,7 @@ while running:
         print("game end")
         break
     
-    pygame.draw.circle(screen, "yellow", bird.pos, bird.radius)
+    bird.draw()
 
     for pipe_pair in pipes:
         if pipe_pair["scored"] == False and bird.pos.x > pipe_pair["top"].x:
