@@ -11,6 +11,24 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
+class Bird:
+    def __init__(self):
+        self.pos = pygame.math.Vector2(width / 2, height / 2)
+        self.velocity = 0
+        self.radius = 30
+        self.alive = True
+    
+    def jump(self):
+        self.velocity = jump_force
+    
+    def update(self):
+        self.pos.y += self.velocity
+        self.velocity += gravity
+    
+    def draw(self):
+        pygame.draw.circle(screen, "yellow", self.pos, self.radius)
+
+
 def check_collision(circle_pos, circle_radius, rect):
     closest_x = max(rect.left, min(circle_pos[0], rect.right))
     closest_y = max(rect.top, min(circle_pos[1], rect.bottom))
@@ -40,11 +58,9 @@ pipe_timer = 0
 pipe_spawn_time = 1.5
 pipe_speed = 300
 
-bird_pos = pygame.math.Vector2(width / 2, height / 2)
-bird_radius = 30
 gravity = 0.5
-bird_velocity_y = 0
 jump_force = -10
+bird = Bird()
 
 score = 0
 
@@ -56,10 +72,10 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             elif event.key == pygame.K_SPACE:
-                bird_velocity_y = jump_force
+                bird.velocity = jump_force
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                bird_velocity_y = jump_force
+                bird.velocity = jump_force
 
     screen.fill("#70C5CE")
 
@@ -81,27 +97,27 @@ while running:
         pygame.draw.rect(screen, "green", pipe_pair["top"])
         pygame.draw.rect(screen, "green", pipe_pair["bottom"])
 
-    bird_pos.y += bird_velocity_y
-    bird_velocity_y += gravity
+    bird.pos.y += bird.velocity
+    bird.velocity += gravity
 
     is_collision = False 
 
     for pipe_pair in pipes:
         if (
-            check_collision(bird_pos, bird_radius, pipe_pair["top"]) 
-            or check_collision(bird_pos, bird_radius, pipe_pair["bottom"])
+            check_collision(bird.pos, bird.radius, pipe_pair["top"]) 
+            or check_collision(bird.pos, bird.radius, pipe_pair["bottom"])
         ):
             is_collision = True;
             break;
 
-    if bird_pos.y > height or bird_pos.y < 0 or is_collision:
+    if bird.pos.y > height or bird.pos.y < 0 or is_collision:
         print("game end")
         break
     
-    pygame.draw.circle(screen, "yellow", bird_pos, bird_radius)
+    pygame.draw.circle(screen, "yellow", bird.pos, bird.radius)
 
     for pipe_pair in pipes:
-        if pipe_pair["scored"] == False and bird_pos.x > pipe_pair["top"].x:
+        if pipe_pair["scored"] == False and bird.pos.x > pipe_pair["top"].x:
             score += 1
             pipe_pair["scored"] = True 
             break
