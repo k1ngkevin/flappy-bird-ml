@@ -3,12 +3,17 @@ import neat
 import pygame
 from game import Bird, Pipe
 
+generation = 0
+
 
 def eval_genomes(genomes, config):
+    global generation
+    generation += 1
+    score = 0
+
     birds = []
     nets = []
     ge = []
-
     for genome_id, genome in genomes:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         genome.fitness = 0.0
@@ -18,7 +23,6 @@ def eval_genomes(genomes, config):
         ge.append(genome)
 
     pipes = [Pipe()]
-    score = 0
     dt = 0
     pipe_spawn_time = 1.5
     pipe_timer = 0
@@ -31,6 +35,7 @@ def eval_genomes(genomes, config):
     clock = pygame.time.Clock()
 
     running = True
+
     while running and len(birds) > 0:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -94,16 +99,18 @@ def eval_genomes(genomes, config):
         for pipe in pipes:
             if not pipe.scored and len(birds) > 0 and birds[0].pos.x > pipe.top_pipe.right:
                 pipe.scored = True
+                score += 1
+
                 for genome in ge:
                     genome.fitness += 5
 
-        # for pipe in pipes:
-        #     if pipe.score_if_passed(bird):
-        #         score += 1
-        #         break
+        gen_surface = font.render(
+            f"gen: {generation}", False, (255, 255, 255))
+        screen.blit(gen_surface, (15, 15))
 
-        # score_surface = font.render(f"{score}", False, (255, 255, 255))
-        # screen.blit(score_surface, (width / 2, 35))
+        score_surface = font.render(
+            f"{score}", False, (255, 255, 255))
+        screen.blit(score_surface, (width / 2, 15))
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
