@@ -76,8 +76,11 @@ class Bird:
         self.velocity += gravity
 
     def draw(self):
+        angle = -self.velocity * 4
+        angle = max(-45, min(45, angle))
+        new_bird_img = pygame.transform.rotate(bird_img, angle)
         bird_rect = bird_img.get_rect(center=self.pos)
-        screen.blit(bird_img, bird_rect)
+        screen.blit(new_bird_img, bird_rect)
 
 
 class Pipe:
@@ -97,7 +100,7 @@ class Pipe:
         self.bottom_pipe.x = int(self.x)
 
     def draw(self):
-        cap_height = int(15 * (self.width / tile_width))
+        cap_height = 15
 
         top_body_rect = pygame.Rect(
             self.top_pipe.x,

@@ -2,7 +2,7 @@ import os
 import neat
 import pygame
 import sys
-from game import Bird, Pipe
+from game import Bird, Pipe, background_img
 
 generation = 0
 
@@ -121,7 +121,7 @@ def eval_genomes(genomes, config):
                     for genome in ge:
                         genome.fitness += 5
 
-        screen.fill("#70C5CE")
+        screen.blit(background_img, (0, 0))
 
         for bird in birds:
             bird.draw()
