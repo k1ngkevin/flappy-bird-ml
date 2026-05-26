@@ -1,5 +1,10 @@
 import pygame
 import random
+from pathlib import Path
+
+base_dir = Path(__file__).parent
+asset_dir = base_dir / "bird-assets"
+
 
 pygame.init()
 pygame.font.init()
@@ -8,6 +13,52 @@ width, height = 1280, 720
 
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
+
+bird_sheet = pygame.image.load(
+    str(asset_dir / "Player" / "StyleBird1" / "Bird1-1.png")).convert_alpha()
+
+bird_frame_rect = pygame.Rect(0, 0, 16, 16)
+bird_img = bird_sheet.subsurface(bird_frame_rect)
+bird_img = pygame.transform.scale(bird_img, (60, 60))
+
+background_img = pygame.image.load(
+    str(asset_dir / "Background" / "Background7.png")).convert()
+background_img = pygame.transform.scale(background_img, (width, height))
+
+pipe_sheet = pygame.image.load(
+    str(asset_dir / "Tiles" / "Style 1" / "PipeStyle1.png")
+).convert_alpha()
+
+tile_width = 32
+tile_height = 80
+
+row = 0
+col = 2
+
+pipe_top_rect = pygame.Rect(
+    col * tile_width,
+    row * tile_height,
+    tile_width,
+    15,
+)
+
+pipe_bottom_rect = pygame.Rect(
+    col * tile_width,
+    65,
+    tile_width,
+    15,
+)
+
+pipe_middle_rect = pygame.Rect(
+    col * tile_width,
+    15,
+    tile_width,
+    50,
+)
+
+pipe_top_img = pipe_sheet.subsurface(pipe_top_rect)
+pipe_bottom_img = pipe_sheet.subsurface(pipe_bottom_rect)
+pipe_middle_img = pipe_sheet.subsurface(pipe_middle_rect)
 
 
 class Bird:
@@ -25,7 +76,8 @@ class Bird:
         self.velocity += gravity
 
     def draw(self):
-        pygame.draw.circle(screen, "yellow", self.pos, self.radius)
+        bird_rect = bird_img.get_rect(center=self.pos)
+        screen.blit(bird_img, bird_rect)
 
 
 class Pipe:
@@ -45,8 +97,58 @@ class Pipe:
         self.bottom_pipe.x = int(self.x)
 
     def draw(self):
-        pygame.draw.rect(screen, "green", self.top_pipe)
-        pygame.draw.rect(screen, "green", self.bottom_pipe)
+        cap_height = int(15 * (self.width / tile_width))
+
+        top_body_rect = pygame.Rect(
+            self.top_pipe.x,
+            self.top_pipe.y,
+            self.top_pipe.width,
+            max(0, self.top_pipe.height - cap_height),
+        )
+        top_cap_rect = pygame.Rect(
+            self.top_pipe.x,
+            self.top_pipe.bottom - cap_height,
+            self.top_pipe.width,
+            cap_height,
+        )
+        bottom_cap_rect = pygame.Rect(
+            self.bottom_pipe.x,
+            self.bottom_pipe.y,
+            self.bottom_pipe.width,
+            cap_height,
+        )
+        bottom_body_rect = pygame.Rect(
+            self.bottom_pipe.x,
+            self.bottom_pipe.y + cap_height,
+            self.bottom_pipe.width,
+            max(0, self.bottom_pipe.height - cap_height),
+        )
+
+        if top_body_rect.height > 0:
+            top_body = pygame.transform.scale(
+                pipe_middle_img,
+                (top_body_rect.width, top_body_rect.height),
+            )
+            screen.blit(top_body, top_body_rect)
+
+        top_cap = pygame.transform.scale(
+            pipe_bottom_img,
+            (top_cap_rect.width, top_cap_rect.height),
+        )
+        screen.blit(top_cap, top_cap_rect)
+
+        bottom_cap = pygame.transform.scale(
+            pipe_top_img,
+            (bottom_cap_rect.width, bottom_cap_rect.height),
+        )
+        screen.blit(bottom_cap, bottom_cap_rect)
+
+        if bottom_body_rect.height > 0:
+            bottom_body = pygame.transform.scale(
+                pipe_middle_img,
+                (bottom_body_rect.width, bottom_body_rect.height),
+            )
+            screen.blit(bottom_body, bottom_body_rect)
 
     def is_off_screen(self):
         return self.top_pipe.right <= 0
@@ -102,7 +204,7 @@ def main():
                 if event.button == 1:
                     bird.jump()
 
-        screen.fill("#70C5CE")
+        screen.blit(background_img, (0, 0))
 
         pipe_timer += dt
         if pipe_timer >= pipe_spawn_time:
