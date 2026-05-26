@@ -42,6 +42,7 @@ def eval_genomes(genomes, config):
     pygame.font.init()
     font = pygame.font.SysFont("Arial", 50)
     button_font = pygame.font.SysFont("Arial", 36)
+    remaining_font = pygame.font.SysFont("Arial", 36)
     width, height = 1280, 720
     screen = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
@@ -152,6 +153,10 @@ def eval_genomes(genomes, config):
         plus_text = button_font.render("+", True, "black")
         plus_rect = plus_text.get_rect(center=plus_button.center)
         screen.blit(plus_text, plus_rect)
+
+        remaining_surface = remaining_font.render(
+            f"remaining: {len(birds)}", False, (255, 255, 255))
+        screen.blit(remaining_surface, (15, 170))
 
         pygame.display.flip()
         clock.tick(60)
