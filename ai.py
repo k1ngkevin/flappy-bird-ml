@@ -2,12 +2,18 @@ import os
 import neat
 import pygame
 import sys
-from game import Bird, Pipe, background_img
+import game
 
 generation = 0
 
 simulation_steps_per_frame = 1
 simulation_dt = 1 / 60
+
+screen = None
+clock = None
+font = None
+button_font = None
+remaining_font = None
 
 minus_button = pygame.Rect(15, 100, 40, 40)
 plus_button = pygame.Rect(145, 100, 40, 40)
@@ -17,9 +23,26 @@ def clamp(val, min_val, max_val):
     return max(min_val, min(val, max_val))
 
 
+def init_display():
+    global screen, clock, font, button_font, remaining_font
+
+    screen = game.screen
+    clock = game.clock
+    font = game.font
+    button_font = pygame.font.SysFont("Arial", 36)
+    remaining_font = pygame.font.SysFont("Arial", 36)
+    pygame.display.set_caption("Flappy Bird AI")
+
+
 def eval_genomes(genomes, config):
     global simulation_steps_per_frame
     global generation
+    assert screen is not None
+    assert clock is not None
+    assert font is not None
+    assert button_font is not None
+    assert remaining_font is not None
+
     generation += 1
     score = 0
 
@@ -30,22 +53,14 @@ def eval_genomes(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         genome.fitness = 0.0
 
-        birds.append(Bird())
+        birds.append(game.Bird())
         nets.append(net)
         ge.append(genome)
 
-    pipes = [Pipe()]
+    pipes = [game.Pipe()]
     pipe_spawn_time = 1.5
     pipe_timer = 0
-
-    pygame.init()
-    pygame.font.init()
-    font = pygame.font.SysFont("Arial", 50)
-    button_font = pygame.font.SysFont("Arial", 36)
-    remaining_font = pygame.font.SysFont("Arial", 36)
-    width, height = 1280, 720
-    screen = pygame.display.set_mode((width, height))
-    clock = pygame.time.Clock()
+    width, height = game.width, game.height
 
     running = True
 
@@ -58,10 +73,10 @@ def eval_genomes(genomes, config):
                     sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if (mouse_pos >= (15, 100) and mouse_pos <= (65, 140)):
+                if minus_button.collidepoint(mouse_pos):
                     simulation_steps_per_frame = clamp(
                         simulation_steps_per_frame - 1, 1, 8)
-                if (mouse_pos >= (145, 100) and mouse_pos <= (185, 140)):
+                if plus_button.collidepoint(mouse_pos):
                     simulation_steps_per_frame = clamp(
                         simulation_steps_per_frame + 1, 1, 8)
 
@@ -95,7 +110,7 @@ def eval_genomes(genomes, config):
 
             pipe_timer += simulation_dt
             if pipe_timer >= pipe_spawn_time:
-                pipes.append(Pipe())
+                pipes.append(game.Pipe())
                 pipe_timer = 0
 
             pipes = [pipe for pipe in pipes if not pipe.is_off_screen()]
@@ -122,7 +137,7 @@ def eval_genomes(genomes, config):
                     for genome in ge:
                         genome.fitness += 5
 
-        screen.blit(background_img, (0, 0))
+        screen.blit(game.background_img, (0, 0))
 
         for bird in birds:
             bird.draw()
@@ -165,6 +180,8 @@ def eval_genomes(genomes, config):
 
 
 def run_neat(config_path):
+    init_display()
+
     config = neat.Config(
         neat.DefaultGenome,
         neat.DefaultReproduction,
