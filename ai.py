@@ -123,7 +123,7 @@ def eval_genomes(genomes, config):
                     if pipe.collides_with(bird):
                         hit_pipe = True
 
-                if bird.pos.y > height or bird.pos.y < 0 or hit_pipe:
+                if bird.pos.y > height - (bird.radius * 1.5) or bird.pos.y < 0 or hit_pipe:
                     ge[i].fitness -= 1
                     birds.pop(i)
                     nets.pop(i)
