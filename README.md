@@ -2,6 +2,8 @@
 
 A small Flappy Bird clone built with Pygame, plus a NEAT-Python trainer that evolves birds to play the game automatically. Watch as the birds get smarter each generation
 
+https://github.com/user-attachments/assets/0e21a8f0-2f83-4d76-b61d-c9f56997b112
+
 ## Features
 
 - Playable Flappy Bird-style game in `game.py`
